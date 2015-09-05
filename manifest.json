@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+
+  "name": "Remaker",
+  "description": "Modifies a page based on a predefined template",
+  "version": "0.0.0.1",
+
+  "content_scripts": [
+    {
+      "matches":["*://*/*"],
+      "js": ["lib/jquery-1.11.3.min.js", "src/Modifications.js", "src/Parser.js", "src/change_injector.js"],
+      "all_frames": true
+    }
+  ],
+
+  "background": {
+    "scripts": ["src/background.js"]
+  },
+
+  "page_action": {
+    "default_title": "Edit Page",
+    "default_icon": {
+      "256": "Edit.png"
+    }
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab"
+  ]
+}
