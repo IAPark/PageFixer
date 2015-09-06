@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
 
-  "name": "Remaker",
-  "description": "Modifies a page based on a predefined template",
+  "name": "PageFixer",
+  "description": "Modifies a page based on template created by the user",
   "version": "0.0.0.1",
 
   "content_scripts": [
@@ -21,9 +21,7 @@
 
   "page_action": {
     "default_title": "Edit Page",
-    "default_icon": {
-      "256": "Edit.png"
-    }
+    "default_icon": "Edit.png"
   },
 
   "permissions": [

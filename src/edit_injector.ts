@@ -39,9 +39,9 @@ class ChangeRecorder{
         this.log+="\na" + location+'@'+command;
     }
 
-    parameters(location: string, command: {param: string, value: string}){
+    parameters(location: string, command: string){
         location = location.slice(this.roots[this.roots.length-1].length + ((this.repeating)?3:0));
-        this.log+="\np" + location+'@'+command.param+'='+command.value;
+        this.log+="\np" + location+'@'+command;
     }
 
     end(){
@@ -108,7 +108,7 @@ function add_for_element(root:JQuery, higher:string) {
 
                 } else if (key == "param"){
                     let paramValue = window.prompt("Parameter and value", "id=test");
-                    recorder.parameters(domLocation, {param: paramValue.split("=")[0], value: paramValue.split("=").slice(1).join('=')});
+                    recorder.parameters(domLocation, paramValue);
                 } else if (key == "attr"){
                     let attrValue = window.prompt("Attribute and value", "style=test");
                     recorder.attribute(domLocation, attrValue);

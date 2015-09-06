@@ -31,7 +31,7 @@ var ChangeRecorder = (function () {
     };
     ChangeRecorder.prototype.parameters = function (location, command) {
         location = location.slice(this.roots[this.roots.length - 1].length + ((this.repeating) ? 3 : 0));
-        this.log += "\np" + location + '@' + command.param + '=' + command.value;
+        this.log += "\np" + location + '@' + command;
     };
     ChangeRecorder.prototype.end = function () {
         this.log += "\n}";
@@ -88,7 +88,7 @@ function add_for_element(root, higher) {
                 }
                 else if (key == "param") {
                     var paramValue = window.prompt("Parameter and value", "id=test");
-                    recorder.parameters(domLocation, { param: paramValue.split("=")[0], value: paramValue.split("=").slice(1).join('=') });
+                    recorder.parameters(domLocation, paramValue);
                 }
                 else if (key == "attr") {
                     var attrValue = window.prompt("Attribute and value", "style=test");

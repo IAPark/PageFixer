@@ -67,6 +67,11 @@ var ParamModification = (function (_super) {
     ParamModification.prototype.execute = function () {
         var param = this.command.split('=')[0];
         this.domLocation.getElement().get(0).params[param] = this.command.split('=').slice(1).join('=');
+        var working = this.domLocation.getElement().get(0).params;
+        for (var i = 0; i < param.length - 1; ++i) {
+            working = working[param[i]];
+        }
+        working[param[param.length - 1]] = this.command.split('=').slice(1).join('=');
     };
     return ParamModification;
 })(LocationModification);
