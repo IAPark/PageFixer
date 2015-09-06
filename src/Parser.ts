@@ -31,7 +31,7 @@ class Parser{
                 modifications = modifications.concat(child.m);
             } else if (line.charAt(0) === "}") {
                 break;
-            } else if (line.charAt(0) === "c") {
+            } else if (line.charAt(0) === "r") {
                 var child: {m: Array<Modification>, i: number} = {i: 0, m: []};
                 new DomLocation(line.slice(1), root).getElement().children().each((j, e) => {
                     i-=child.i;

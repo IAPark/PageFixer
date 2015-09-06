@@ -2,22 +2,45 @@
 /// <reference path="../typings/chrome/chrome.d.ts" />
 /// <reference path="Parser.ts" />
 /// <reference path="change_injector.ts" />
-var dif = "";
 var repeating_includes = [];
-chrome.storage.local.get(location.href, function (items) {
-    if (dif) {
-        dif = items[location.href].dif;
+var repeating = null;
+var ChangeRecorder = (function () {
+    function ChangeRecorder(start) {
+        this.roots = [""];
+        this.repeating = false;
+        this.log = start;
     }
-});
+    ChangeRecorder.prototype.add = function (location, element) {
+        location = location.slice(this.roots[this.roots.length - 1].length + ((this.repeating) ? 3 : 0));
+        this.log += "\n+" + location + "@" + element;
+    };
+    ChangeRecorder.prototype.remove = function (location) {
+        location = location.slice(this.roots[this.roots.length - 1].length + ((this.repeating) ? 3 : 0));
+        this.log += "\n-" + location;
+    };
+    ChangeRecorder.prototype.repeat = function (location) {
+        location = location.slice(this.roots[this.roots.length - 1].length + ((this.repeating) ? 3 : 0));
+        this.roots.push((this.roots[this.roots.length - 1] + " " + location).trim());
+        this.log += "\nr" + location;
+        this.repeating = true;
+    };
+    ChangeRecorder.prototype.end = function () {
+        this.log += "\n}";
+        this.roots.pop();
+        this.repeating = false;
+    };
+    return ChangeRecorder;
+})();
+var recorder = new ChangeRecorder("");
 $(function () {
-    $("head").append("\n    <style>\n\n\n        .no-border{\n            border-style: none;\n            border-width: 0;\n            border-color: black;\n        }\n    </style>\n    ");
+    $("head").append("\n    <style>\n        .no-border{\n            border-style: none;\n            border-width: 0;\n            border-color: black;\n        }\n    </style>\n    ");
     setTimeout(function () {
         editor_remove();
         editor_apply();
     }, 500);
 });
 function editor_apply() {
-    apply(dif);
+    apply(recorder.log);
     add_for_element($("body"), "1");
 }
 function editor_remove() {
@@ -26,57 +49,67 @@ function editor_remove() {
 }
 function add_for_element(root, higher) {
     root.children().each(function (index, element) {
-        // suggested by http://stackoverflow.com/questions/3442394/jquery-using-text-to-retrieve-only-text-not-nested-in-child-tags
-        /*if($(element).clone()    //clone the element
-                .children() //select all the children
-                .remove()   //remove all the children
-                .end()  //again go back to selected element
-                .text() == "") {
-            return;
-        }*/
-        // based on a suggestion here http://stackoverflow.com/questions/3442394/jquery-using-text-to-retrieve-only-text-not-nested-in-child-tags
         var domLocation = (higher + " " + index).trim();
         add_for_element($(element), domLocation);
         var menu_class = "menu-" + domLocation.replace(/ /g, "-");
         $(element).addClass(menu_class);
+        $(element).data("location", domLocation);
         $.contextMenu({
             selector: '.' + menu_class,
             callback: function (key, options) {
                 if (key === "add") {
                     var html = window.prompt("HTML to add:", "<p>Hello World</p>");
-                    dif += "\n+" + domLocation + "@" + html;
+                    recorder.add(domLocation, html);
+                    editor_remove();
+                    editor_apply();
                 }
-                else if (key == "repeating") {
-                    repeating_includes.push($(element));
+                else if (key === "repeating") {
+                    repeating_includes.push(element);
+                    $(element).css("background-color", "gray");
+                    console.log("setting repeating");
+                    console.log($(element));
+                }
+                else if (key === "select") {
+                    repeating = getWrapping(repeating_includes);
+                    repeating.css("background-color", "red");
+                    recorder.repeat(repeating.data("location"));
                 }
                 else if (key === "remove") {
-                    dif += "\n-" + domLocation;
+                    recorder.remove(domLocation);
+                    editor_remove();
+                    editor_apply();
                 }
                 else if (key == "save") {
                     save();
                 }
-                editor_remove();
-                editor_apply();
+                else if (key == "end") {
+                    recorder.end();
+                }
             },
             items: {
                 "add": { name: "Add" },
                 "remove": { name: "Remove" },
                 "repeating": { name: "Repeating" },
-                "save": { name: "Save" }
+                "select": { name: "Select Repeating" },
+                "save": { name: "Save" },
+                "end": { name: "End" }
             }
         });
     });
 }
 function save() {
     var location_to_save = location.href;
-    console.log(location_to_save);
-    console.log(dif);
     chrome.storage.local.remove(location_to_save);
     var result = {};
-    result[location_to_save] = dif;
+    result[location_to_save] = recorder.log;
     chrome.storage.local.set(result, function () {
-        console.log("saved");
         chrome.storage.local.get(location_to_save, function (items) { return console.log(items); });
     });
+}
+function getWrapping(elements) {
+    if (elements.length < 2) {
+        return;
+    }
+    return $(elements[0]).parents().has(elements[1]).first();
 }
 //# sourceMappingURL=edit_injector.js.map

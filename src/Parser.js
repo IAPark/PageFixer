@@ -29,7 +29,7 @@ var Parser = (function () {
             else if (line.charAt(0) === "}") {
                 break;
             }
-            else if (line.charAt(0) === "c") {
+            else if (line.charAt(0) === "r") {
                 var child = { i: 0, m: [] };
                 new DomLocation(line.slice(1), root).getElement().children().each(function (j, e) {
                     i -= child.i;

@@ -11,7 +11,7 @@ $(function () { return setTimeout(function () {
         console.log(items);
         apply(items[location.href]);
     });
-}, 300); });
+}, 500); });
 function apply(dif) {
     new Parser(dif).parse().forEach(function (modification) {
         modification.execute();

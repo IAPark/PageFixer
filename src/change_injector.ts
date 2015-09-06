@@ -15,7 +15,7 @@ $(() => setTimeout(() => {
 
         apply(items[location.href]);
     });
-}, 300));
+}, 500));
 
 function apply(dif: string) {
     new Parser(dif).parse().forEach((modification) => {
