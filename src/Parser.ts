@@ -39,13 +39,10 @@ class Parser{
                     modifications = modifications.concat(child.m);
                     i+=child.i;
                 });
-            } else if (line.charAt(0) === "s"){
-                let name = line.split('@').slice(1).join('@');
-                let location = new DomLocation(line.slice(1), root).getElement();
-                location.attr("id", name);
-                this.data[name] = location.html();
-            } else if (line.charAt(0) === "~"){
-
+            } else if (line.charAt(0) === "p"){
+                modifications.push(new ParamModification(line.slice(1), root));
+            } else if (line.charAt(0) === "a"){
+                modifications.push(new AttributeModification(line.slice(1), root));
             }
         }
 

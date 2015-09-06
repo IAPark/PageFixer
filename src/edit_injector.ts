@@ -34,6 +34,16 @@ class ChangeRecorder{
         this.repeating = true;
     }
 
+    attribute(location: string, command: string){
+        location = location.slice(this.roots[this.roots.length-1].length + ((this.repeating)?3:0));
+        this.log+="\na" + location+'@'+command;
+    }
+
+    parameters(location: string, command: {param: string, value: string}){
+        location = location.slice(this.roots[this.roots.length-1].length + ((this.repeating)?3:0));
+        this.log+="\np" + location+'@'+command.param+'='+command.value;
+    }
+
     end(){
         this.log+="\n}";
         this.roots.pop();
@@ -83,8 +93,6 @@ function add_for_element(root:JQuery, higher:string) {
                 if(key === "add") {
                     let html = window.prompt("HTML to add:", "<p>Hello World</p>");
                     recorder.add(domLocation, html);
-                    editor_remove();
-                    editor_apply();
 
                 }else if(key === "repeating") {
                     repeating_includes.push(element);
@@ -97,9 +105,13 @@ function add_for_element(root:JQuery, higher:string) {
                     }
                 } else if(key === "remove"){
                     recorder.remove(domLocation);
-                    editor_remove();
-                    editor_apply();
 
+                } else if (key == "param"){
+                    let paramValue = window.prompt("Parameter and value", "id=test");
+                    recorder.parameters(domLocation, {param: paramValue.split("=")[0], value: paramValue.split("=").slice(1).join('=')});
+                } else if (key == "attr"){
+                    let attrValue = window.prompt("Attribute and value", "style=test");
+                    recorder.attribute(domLocation, attrValue);
                 } else if (key == "save"){
                     save();
 
@@ -107,13 +119,15 @@ function add_for_element(root:JQuery, higher:string) {
                     recorder.end();
                     repeating = null;
                     repeating_class = null;
-                    editor_remove();
-                    editor_apply();
                 }
+                editor_remove();
+                editor_apply();
             },
             items: {
                 "add": {name: "Add"},
                 "remove": {name: "Remove"},
+                "param": {name: "Set Parameters"},
+                "attr": {name: "Set Attribute"},
                 "repeating": {name: "Repeating"},
                 "save": {name: "Save"},
                 "end": {name: "End"}

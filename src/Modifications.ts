@@ -58,8 +58,39 @@ class Remove extends LocationModification {
     }
 }
 
-class AttributeModification extends LocationModification{
+class ParamModification extends LocationModification{
+    command: string;
+
     constructor(line:string, root: JQuery) {
         super(line, root);
+        this.command = line.split('@').slice(1).join('@');
+    }
+
+    execute(){
+        let param = this.command.split('=')[0];
+
+        this.domLocation.getElement().get(0).params[param] = this.command.split('=').slice(1).join('=');
+    }
+}
+
+class AttributeModification extends LocationModification{
+    command: string;
+
+    constructor(line:string, root: JQuery) {
+        super(line, root);
+        this.command = line.split('@').slice(1).join('@');
+        console.log("AttributeModification")
+    }
+
+    execute(){
+        let attribute = this.command.split('=')[0].split('.');
+
+        console.log(this.command.split('=').slice(1).join('='));
+        var working = this.domLocation.getElement().get(0);
+        for(var i = 0; i< attribute.length-1; ++i){
+            working = working[attribute[i]];
+        }
+
+        working[attribute[attribute.length-1]] = this.command.split('=').slice(1).join('=');
     }
 }

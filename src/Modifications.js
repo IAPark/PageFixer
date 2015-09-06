@@ -58,11 +58,34 @@ var Remove = (function (_super) {
     };
     return Remove;
 })(LocationModification);
+var ParamModification = (function (_super) {
+    __extends(ParamModification, _super);
+    function ParamModification(line, root) {
+        _super.call(this, line, root);
+        this.command = line.split('@').slice(1).join('@');
+    }
+    ParamModification.prototype.execute = function () {
+        var param = this.command.split('=')[0];
+        this.domLocation.getElement().get(0).params[param] = this.command.split('=').slice(1).join('=');
+    };
+    return ParamModification;
+})(LocationModification);
 var AttributeModification = (function (_super) {
     __extends(AttributeModification, _super);
     function AttributeModification(line, root) {
         _super.call(this, line, root);
+        this.command = line.split('@').slice(1).join('@');
+        console.log("AttributeModification");
     }
+    AttributeModification.prototype.execute = function () {
+        var attribute = this.command.split('=')[0].split('.');
+        console.log(this.command.split('=').slice(1).join('='));
+        var working = this.domLocation.getElement().get(0);
+        for (var i = 0; i < attribute.length - 1; ++i) {
+            working = working[attribute[i]];
+        }
+        working[attribute[attribute.length - 1]] = this.command.split('=').slice(1).join('=');
+    };
     return AttributeModification;
 })(LocationModification);
 //# sourceMappingURL=Modifications.js.map

@@ -38,13 +38,11 @@ var Parser = (function () {
                     i += child.i;
                 });
             }
-            else if (line.charAt(0) === "s") {
-                var name_1 = line.split('@').slice(1).join('@');
-                var location_1 = new DomLocation(line.slice(1), root).getElement();
-                location_1.attr("id", name_1);
-                this.data[name_1] = location_1.html();
+            else if (line.charAt(0) === "p") {
+                modifications.push(new ParamModification(line.slice(1), root));
             }
-            else if (line.charAt(0) === "~") {
+            else if (line.charAt(0) === "a") {
+                modifications.push(new AttributeModification(line.slice(1), root));
             }
         }
         return { m: modifications, i: i };
