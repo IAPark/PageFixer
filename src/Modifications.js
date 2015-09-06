@@ -58,4 +58,11 @@ var Remove = (function (_super) {
     };
     return Remove;
 })(LocationModification);
+var AttributeModification = (function (_super) {
+    __extends(AttributeModification, _super);
+    function AttributeModification(line, root) {
+        _super.call(this, line, root);
+    }
+    return AttributeModification;
+})(LocationModification);
 //# sourceMappingURL=Modifications.js.map

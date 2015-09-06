@@ -3,6 +3,8 @@
 
 
 class Parser{
+    public data: Object;
+
     constructor(private file: string){
 
     }
@@ -11,10 +13,10 @@ class Parser{
         var lines = this.file.split("\n");
         lines = lines.map( (line) => line.trim());
         lines = lines.filter( (line) => !(line === ""));
-        return Parser.parseRoot(lines, $("html")).m;
+        return this.parseRoot(lines, $("html")).m;
     }
 
-    static parseRoot(lines: Array<string>, root: JQuery): {m: Array<Modification>, i: number}{
+    parseRoot(lines: Array<string>, root: JQuery): {m: Array<Modification>, i: number}{
         var modifications: Array<Modification> = [];
 
         for(var i = 0; i < lines.length; ++i) {
@@ -23,20 +25,26 @@ class Parser{
                 modifications.push(new Add(line.slice(1), root))
             } else if (line.charAt(0) === "-") {
                 modifications.push(new Remove(line.slice(1), root))
-            } else if (line.charAt(0) == "{") {
-                var child = Parser.parseRoot(lines.slice(i + 1), new DomLocation(line.slice(1), root).getElement());
+            } else if (line.charAt(0) === "{") {
+                var child = this.parseRoot(lines.slice(i + 1), new DomLocation(line.slice(1), root).getElement());
                 i+=child.i;
                 modifications = modifications.concat(child.m);
-            } else if (line.charAt(0) == "}") {
+            } else if (line.charAt(0) === "}") {
                 break;
-            } else if (line.charAt(0) == "c") {
+            } else if (line.charAt(0) === "c") {
                 var child: {m: Array<Modification>, i: number} = {i: 0, m: []};
                 new DomLocation(line.slice(1), root).getElement().children().each((j, e) => {
                     i-=child.i;
-                    child = Parser.parseRoot(lines.slice(i + 1), $(e));
+                    child = this.parseRoot(lines.slice(i + 1), $(e));
                     modifications = modifications.concat(child.m);
                     i+=child.i;
                 });
+            } else if (line.charAt(0) === "s"){
+                let name = line.split('@').slice(1).join('@');
+                let location = new DomLocation(line.slice(1), root).getElement();
+                location.attr("id", name);
+                this.data[name] = location.html();
+            } else if (line.charAt(0) === "~"){
 
             }
         }

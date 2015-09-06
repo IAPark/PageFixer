@@ -1,15 +1,24 @@
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/chrome/chrome.d.ts" />
 /// <reference path="Parser.ts" />
-chrome.storage.sync.set({ "https://www.google.com/": { changes: "+0@<p>test</p>" } });
+var vanilla;
 $(function () { return setTimeout(function () {
-    chrome.storage.sync.get(location.href, function (items) {
-        if (items) {
+    vanilla = $("html").clone();
+    chrome.storage.local.get(location.href, function (items) {
+        if (!items) {
             return;
         }
-        new Parser(items[location.href]["changes"]).parse().forEach(function (modification) {
-            modification.execute();
-        });
+        console.log(items);
+        apply(items[location.href]);
     });
-}, 1000); });
+}, 300); });
+function apply(dif) {
+    new Parser(dif).parse().forEach(function (modification) {
+        modification.execute();
+    });
+}
+function remove() {
+    $("html").replaceWith(vanilla);
+    vanilla = vanilla.clone();
+}
 //# sourceMappingURL=change_injector.js.map

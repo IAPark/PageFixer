@@ -8,9 +8,10 @@ var Parser = (function () {
         var lines = this.file.split("\n");
         lines = lines.map(function (line) { return line.trim(); });
         lines = lines.filter(function (line) { return !(line === ""); });
-        return Parser.parseRoot(lines, $("html")).m;
+        return this.parseRoot(lines, $("html")).m;
     };
-    Parser.parseRoot = function (lines, root) {
+    Parser.prototype.parseRoot = function (lines, root) {
+        var _this = this;
         var modifications = [];
         for (var i = 0; i < lines.length; ++i) {
             var line = lines[i];
@@ -20,22 +21,30 @@ var Parser = (function () {
             else if (line.charAt(0) === "-") {
                 modifications.push(new Remove(line.slice(1), root));
             }
-            else if (line.charAt(0) == "{") {
-                var child = Parser.parseRoot(lines.slice(i + 1), new DomLocation(line.slice(1), root).getElement());
+            else if (line.charAt(0) === "{") {
+                var child = this.parseRoot(lines.slice(i + 1), new DomLocation(line.slice(1), root).getElement());
                 i += child.i;
                 modifications = modifications.concat(child.m);
             }
-            else if (line.charAt(0) == "}") {
+            else if (line.charAt(0) === "}") {
                 break;
             }
-            else if (line.charAt(0) == "c") {
+            else if (line.charAt(0) === "c") {
                 var child = { i: 0, m: [] };
                 new DomLocation(line.slice(1), root).getElement().children().each(function (j, e) {
                     i -= child.i;
-                    child = Parser.parseRoot(lines.slice(i + 1), $(e));
+                    child = _this.parseRoot(lines.slice(i + 1), $(e));
                     modifications = modifications.concat(child.m);
                     i += child.i;
                 });
+            }
+            else if (line.charAt(0) === "s") {
+                var name_1 = line.split('@').slice(1).join('@');
+                var location_1 = new DomLocation(line.slice(1), root).getElement();
+                location_1.attr("id", name_1);
+                this.data[name_1] = location_1.html();
+            }
+            else if (line.charAt(0) === "~") {
             }
         }
         return { m: modifications, i: i };

@@ -57,3 +57,9 @@ class Remove extends LocationModification {
         this.domLocation.getElement().detach();
     }
 }
+
+class AttributeModification extends LocationModification{
+    constructor(line:string, root: JQuery) {
+        super(line, root);
+    }
+}
