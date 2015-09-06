@@ -4,6 +4,7 @@
 /// <reference path="change_injector.ts" />
 var repeating_includes = [];
 var repeating = null;
+var repeating_class = null;
 var ChangeRecorder = (function () {
     function ChangeRecorder(start) {
         this.roots = [""];
@@ -33,7 +34,6 @@ var ChangeRecorder = (function () {
 })();
 var recorder = new ChangeRecorder("");
 $(function () {
-    $("head").append("\n    <style>\n        .no-border{\n            border-style: none;\n            border-width: 0;\n            border-color: black;\n        }\n    </style>\n    ");
     setTimeout(function () {
         editor_remove();
         editor_apply();
@@ -42,6 +42,10 @@ $(function () {
 function editor_apply() {
     apply(recorder.log);
     add_for_element($("body"), "1");
+    if (repeating_class) {
+        console.log(repeating_class);
+        $("." + repeating_class).css("background-color", "gray");
+    }
 }
 function editor_remove() {
     remove();
@@ -66,13 +70,12 @@ function add_for_element(root, higher) {
                 else if (key === "repeating") {
                     repeating_includes.push(element);
                     $(element).css("background-color", "gray");
-                    console.log("setting repeating");
-                    console.log($(element));
-                }
-                else if (key === "select") {
-                    repeating = getWrapping(repeating_includes);
-                    repeating.css("background-color", "red");
-                    recorder.repeat(repeating.data("location"));
+                    if (repeating_includes.length >= 2) {
+                        repeating = getWrapping(repeating_includes);
+                        repeating_class = "menu-" + repeating.data("location").replace(/ /g, "-");
+                        recorder.repeat(repeating.data("location"));
+                        repeating.css("background-color", "gray");
+                    }
                 }
                 else if (key === "remove") {
                     recorder.remove(domLocation);
@@ -84,13 +87,16 @@ function add_for_element(root, higher) {
                 }
                 else if (key == "end") {
                     recorder.end();
+                    repeating = null;
+                    repeating_class = null;
+                    editor_remove();
+                    editor_apply();
                 }
             },
             items: {
                 "add": { name: "Add" },
                 "remove": { name: "Remove" },
                 "repeating": { name: "Repeating" },
-                "select": { name: "Select Repeating" },
                 "save": { name: "Save" },
                 "end": { name: "End" }
             }
